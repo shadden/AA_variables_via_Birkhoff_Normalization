@@ -65,6 +65,20 @@ def PotentialDerivativesToPoissonSeries(derivs_dict,nmax,cvar_symbols=None):
     return Hdict
 
 def get_xseries(N):
+    """
+    Get a list series dictionaries representing the complex canonical variables
+    :math:`x_i`.
+
+    Parameters
+    ----------
+    N : int
+        Number of complex canonical variables
+
+    Returns
+    -------
+    list
+        list of `defaultdict` objects
+    """
     xseries_list = []
     for i in range(N):
         zeros = np.zeros(N,dtype = int)
@@ -76,6 +90,23 @@ def get_xseries(N):
     return xseries_list
 
 def pert_series_to_PoissonSeries(pert_series,lmax = None):
+    """
+    Convert a dictionary grouping terms by order in a perturbation parameter to
+    into a `celmech.poisson_series.PoissonSeries` object
+
+    Parameters
+    ----------
+    pert_series : dict
+        Dictionary containing perturbative expansion
+    lmax : int, optional
+        maximum order of terms to include in expansion. By default the highest
+        order terms appearing in the dictionary will be included.
+
+    Returns
+    -------
+    celmech.poisson_series.PoissonSeries
+        Resulting series.
+    """
     if not lmax:
         lmax = np.inf
     full_series = PoissonSeries(2,0)
@@ -92,6 +123,21 @@ def collect_by_rt_action_power(series,indx):
     return {pwr:PoissonSeries.from_PSTerms(term_list) for pwr,term_list in rtJ_coeffs.items()}
 
 def h_series_to_omega_series(H_series):
+    r"""
+    Construct series for the dynamical frequencies :math:`\Omega_i =
+    \partial_{J_i}H(J)` given an inpu Hamiltonian.
+
+    Parameters
+    ----------
+    H_series : celmech.poisson_series.PoissonSeries
+        Series representing the Hamiltonian. 
+
+    Returns
+    -------
+    list
+        A list of celmech.poisson_series.PoissonSeries objects that give
+        frequencies as a function of complex variables.
+    """
     N = H_series.N
     Omega_term_lists = [[] for i in range(N)]
     oi = np.eye(N,dtype=int)
@@ -111,6 +157,28 @@ def ic_to_xs(ic,Rc,omega):
     return xR,xz
 
 def to_pade1_approx_function(series,indx = 1):
+    r"""
+    Given a `PoissonSeries` object, return a function that evaluates a (1,n)
+    Padé approximant, where the Padé approximant is developed in the action
+    variable associated with the complex variables occuring in the position
+    specified by `indx`.
+
+    Parameters
+    ----------
+    series : celmech.poisson_series.PoissonSeries
+        Poisson series from which Padé approximant should be built.
+    indx : int, optional
+        specify which variable to establish Padé approximant in, by default 1.
+
+    Returns
+    -------
+    function
+        A function that takes as arguemnts complex canonical variables (except
+        those that are being Padé-approximated) followed by
+        :math:`J=x_i\bar{x}_i` and :math:`x_i/|x_i|` where i is specified by the
+        arguemnt `indx` 
+    """
+
     N = series.N
     cvars = series.cvar_symbols
     J = sp.symbols("J",positive = True)
@@ -135,6 +203,27 @@ def to_pade1_approx_function(series,indx = 1):
     return pade_fn
 
 def to_pade2_approx_function(series,indx = 1):
+    r"""
+    Given a `PoissonSeries` object, return a function that evaluates a (2,n)
+    Padé approximant, where the Padé approximant is developed in the action
+    variable associated with the complex variables occuring in the position
+    specified by `indx`.
+
+    Parameters
+    ----------
+    series : celmech.poisson_series.PoissonSeries
+        Poisson series from which Padé approximant should be built.
+    indx : int, optional
+        specify which variable to establish Padé approximant in, by default 1.
+
+    Returns
+    -------
+    function
+        A function that takes as arguemnts complex canonical variables (except
+        those that are being Padé-approximated) followed by
+        :math:`J=x_i\bar{x}_i` and :math:`x_i/|x_i|` where i is specified by the
+        arguemnt `indx` 
+    """
     N = series.N
     cvars = series.cvar_symbols
     J = sp.symbols("J",positive = True)
