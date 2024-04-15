@@ -165,3 +165,12 @@ def to_pade2_approx_function(series,indx = 1):
     args+= [J,Z]
     pade_fn = sp.lambdify(args,exprn)
     return pade_fn
+
+def generate_phidot_series(Rc,kappa,lmax):
+    phidot_series = defaultdict(lambda: PoissonSeries(2,0))
+    o1 = np.array([1,0],dtype=int)
+    for l in range(1,lmax+1):
+        prefactor = (np.sqrt(2/kappa)/Rc)**l * (-1)**(l) * binom(1+l,l)
+        terms = [PSTerm(prefactor * binom(l,m),m*o1,(l-m)*o1,[],[]) for m in range(l+1)]
+        phidot_series[l] = PoissonSeries.from_PSTerms(terms)
+    return phidot_series
