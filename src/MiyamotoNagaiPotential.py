@@ -1,6 +1,38 @@
 import sympy as sp
 import celmech as cm
 
+def MiyamotoNagai_get_hamiltonian_full(ics,Na,Nb):
+    r"""
+    Get Hamiltonian for orbits in a Miyamato-Nagai potential,
+
+    .. math::
+        \Phi(R,z) =  -\frac{1}{\sqrt{R^2} + (a + \sqrt{z^2+ b^2})^2}
+
+    Parameters
+    ----------
+    ics : ndarray
+        Array of initial conditions for (L,R,z,phi,p_R,p_z)
+    Na : float
+        value of the parameter a
+    Nb : float
+        value of the parameter b
+
+    Returns
+    -------
+    celmech.hamiltonian.Hamiltonian
+        Hamiltonian object
+    """
+    L,R,z,phi,pR,pz = sp.symbols("L,R,z,phi,p_R,p_z",real=True)
+    a,b = sp.symbols("a,b",real=True)
+    KE = (pR * pR + pz * pz + (L/R) * (L/R))/2
+    z_term = a + sp.sqrt(z*z + b*b)
+    PE = -1/sp.sqrt(R * R + z_term * z_term)
+    H = KE + PE
+    pars = {a:Na,b:Nb}
+    state = cm.PhaseSpaceState((phi,R,z,L,pR,pz),ics)
+    ham = cm.Hamiltonian(H,pars,state)
+    return ham
+
 def MiyamotoNagai_get_hamiltonian(ics,NL,Na,Nb):
     r"""
     Get Hamiltonian for orbits in a Miyamato-Nagai potential,
