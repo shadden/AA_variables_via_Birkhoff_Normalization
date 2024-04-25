@@ -255,7 +255,7 @@ def to_pade2_approx_function(series,indx = 1):
     pade_fn = sp.lambdify(args,exprn)
     return pade_fn
 
-def generate_phidot_series(Rc,kappa,lmax):
+def generate_phidot_series(Rc,L,kappa,lmax):
     r"""
     Generate perturbative expansion for :math:`\frac{d}{dt}\phi`.
 
@@ -263,6 +263,8 @@ def generate_phidot_series(Rc,kappa,lmax):
     ----------
     Rc : float
         Circular orbit radius
+    L : float
+        Angular momentum
     kappa : float
         epicyclic frequency
     lmax : int
@@ -271,13 +273,14 @@ def generate_phidot_series(Rc,kappa,lmax):
     Returns
     -------
     defaultdict
-        Dictionary containing term in the expansion of :math:`(R/R_c)^{-2}`
+        Dictionary containing term in the expansion of :math:`L/R^2`
     """
     phidot_series = defaultdict(lambda: PoissonSeries(2,0))
-    phidot_series[0] = PSTerm(1.,[0,0],[0,0],[],[]).as_series()
+    Omega_phi0 = L / Rc / Rc
+    phidot_series[0] = PSTerm(Omega_phi0,[0,0],[0,0],[],[]).as_series()
     o1 = np.array([1,0],dtype=int)
     for l in range(1,lmax+1):
-        prefactor = (np.sqrt(1/2/kappa)/Rc)**l * (-1)**(l) * binom(1+l,l)
+        prefactor = Omega_phi0 * (np.sqrt(1/2/kappa)/Rc)**l * (-1)**(l) * binom(1+l,l)
         terms = [PSTerm(prefactor * binom(l,m),m*o1,(l-m)*o1,[],[]) for m in range(l+1)]
         phidot_series[l] = PoissonSeries.from_PSTerms(terms)
     return phidot_series
