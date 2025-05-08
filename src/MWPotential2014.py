@@ -1,10 +1,11 @@
 import sympy as sp
 import celmech as cm
-from scipy.special import hyp1f1
+
 
 _A_bulge0 = 0.029994597188218296
 _A_disk0 = 0.7574802019371595
 _A_halo0 = 4.852230533527998
+from scipy.special import hyp1f1
 def _my_lower_gamma(s,z):
     return (z**s/s) * hyp1f1(s,s+1,-z)
 
@@ -49,7 +50,8 @@ def MWPotential2014_get_hamiltonian(ics,NL,\
     KE = (pR * pR + pz * pz + (L/R) * (L/R))/2
     state = cm.PhaseSpaceState((R,z,pR,pz),ics)
     ham = cm.Hamiltonian(KE + PE,pars,state)
-    ham._lambdify_kwargs['modules'][1].update({'lowergamma':_my_lower_gamma})
+    # added 05/08/2025 -- fixes handling of lowergamma
+    ham._lambdify_kwargs['modules'].append('scipy')
     return ham
 
 def MWPotential2014_get_hamiltonian_full(ics,\
@@ -91,5 +93,6 @@ def MWPotential2014_get_hamiltonian_full(ics,\
     KE = (pR * pR + pz * pz + (L/R) * (L/R))/2
     state = cm.PhaseSpaceState((phi,R,z,L,pR,pz),ics)
     ham = cm.Hamiltonian(KE + PE,pars,state)
-    ham._lambdify_kwargs['modules'][1].update({'lowergamma':_my_lower_gamma})
+    # added 05/08/2025 -- fixes handling of lowergamma
+    ham._lambdify_kwargs['modules'].append('scipy')
     return ham
